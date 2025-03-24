@@ -50,25 +50,14 @@ class Solution {
     }
 
     private func addTwoRecurse(_ l1: ListNode?, _ l2: ListNode?, carryOver: Int = 0) -> ListNode? {
-        var nextValue = carryOver                                        // Holder for the next node value
-        if let l1 {                                                      // Depending on l1, l2, add to the value
-            nextValue += l1.val
-            if let l2 {
-                nextValue += l2.val
-            }
-        } else if let l2 {
-            nextValue += l2.val
-        }
+        if l1 == nil && l2 == nil && carryOver == 0 { return nil }  // Base case, params for recursion
 
-        let nextCarry = nextValue / 10                                   // The new value is modulo, the new carry is a division
-        if l1?.next != nil || l2?.next != nil || nextCarry > 0 {         // Params for recrusion
-            return ListNode(
-                nextValue % 10,
-                addTwoRecurse(l1?.next, l2?.next, carryOver: nextCarry)
-            )
-        }
+        let nextValue = (l1?.val ?? 0) + (l2?.val ?? 0) + carryOver // Holder for the next node value, treat missing nodes as 0
+        let nextCarry = nextValue / 10                              // The new value is modulo, the new carry is a division
+
         return ListNode(
-            nextValue % 10
+            nextValue % 10,
+            addTwoRecurse(l1?.next, l2?.next, carryOver: nextCarry)
         )
     }
 }
