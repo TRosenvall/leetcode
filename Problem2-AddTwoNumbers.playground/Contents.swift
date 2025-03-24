@@ -45,20 +45,74 @@ public class ListNode: Equatable {
 }
 
 class Solution {
+//    /// Solution 1 - Recursive Approach 1: I kinda brute forced this, not a super elegant solution but it performed well initially.
+//    func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+//        addTwoRecurse(l1, l2)
+//    }
+//
+//    private func addTwoRecurse(_ l1: ListNode?, _ l2: ListNode?, carryOver: Int = 0) -> ListNode? {
+//        var nextValue = carryOver                                        // Holder for the next node value
+//        if let l1 {                                                      // Depending on l1, l2, add to the value
+//            nextValue += l1.val
+//            if let l2 {
+//                nextValue += l2.val
+//            }
+//        } else if let l2 {
+//            nextValue += l2.val
+//        }
+//
+//        let nextCarry = nextValue / 10                                   // The new value is modulo, the new carry is a division
+//        if l1?.next != nil || l2?.next != nil || nextCarry > 0 {         // Params for recrusion
+//            return ListNode(
+//                nextValue % 10,
+//                addTwoRecurse(l1?.next, l2?.next, carryOver: nextCarry)
+//            )
+//        }
+//        return ListNode(
+//            nextValue % 10
+//        )
+//    }
+
+//    /// Solution 2 - Recursive Approach 2
+//    func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
+//        addTwoRecurse(l1, l2)
+//    }
+//
+//    private func addTwoRecurse(_ l1: ListNode?, _ l2: ListNode?, carryOver: Int = 0) -> ListNode? {
+//        if l1 == nil && l2 == nil && carryOver == 0 { return nil }  // Base case, params for recursion
+//
+//        let nextValue = (l1?.val ?? 0) + (l2?.val ?? 0) + carryOver // Holder for the next node value, treat missing nodes as 0
+//        let nextCarry = nextValue / 10                              // The new value is modulo, the new carry is a division
+//
+//        return ListNode(
+//            nextValue % 10,
+//            addTwoRecurse(l1?.next, l2?.next, carryOver: nextCarry)
+//        )
+//    }
+
+    /// Solution 3 - Iterative Approach
+    /// Hypothetically, this should perform more efficiently when scaled with a space complexity of O(1) and a time complexity of
+    /// O(max(m, n)) vs the recursive approach with a space and time complexity of O(max(m, n)), though my benchmarks with this
+    /// itterative approach aren't super compared to the recursive approach.
     func addTwoNumbers(_ l1: ListNode?, _ l2: ListNode?) -> ListNode? {
-        addTwoRecurse(l1, l2)
-    }
+        let placeholder = ListNode(0)                               // Placeholder for result list
+        var currentNode = placeholder
+        var carryOver = 0
 
-    private func addTwoRecurse(_ l1: ListNode?, _ l2: ListNode?, carryOver: Int = 0) -> ListNode? {
-        if l1 == nil && l2 == nil && carryOver == 0 { return nil }  // Base case, params for recursion
+        var l1 = l1
+        var l2 = l2
 
-        let nextValue = (l1?.val ?? 0) + (l2?.val ?? 0) + carryOver // Holder for the next node value, treat missing nodes as 0
-        let nextCarry = nextValue / 10                              // The new value is modulo, the new carry is a division
+        while l1 != nil || l2 != nil || carryOver > 0 {             // Conditions for recursion
+            let sum = (l1?.val ?? 0) + (l2?.val ?? 0) + carryOver
+            carryOver = sum / 10
+            currentNode.next = ListNode(sum % 10)                   // Update current node focus
+            currentNode = currentNode.next!
+            
+            l1 = l1?.next
+            l2 = l2?.next
+        }
 
-        return ListNode(
-            nextValue % 10,
-            addTwoRecurse(l1?.next, l2?.next, carryOver: nextCarry)
-        )
+        return placeholder.next                                     // Remove the placeholder
     }
 }
 
