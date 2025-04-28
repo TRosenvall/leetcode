@@ -26,6 +26,8 @@ import XCTest
 
 class Solution {
     func lengthOfLongestSubstring(_ s: String) -> Int {
+        print("=========")
+        print("s")
         // Get all the substrings, regardless of duplicate characters
         let substrings = getAllSubstring(s: s)
         // Remove any substrings with duplicate characters
@@ -50,9 +52,11 @@ class Solution {
                 // a substring from the beginning of the array to the current index to account for
                 // potential substrings that might occur from the beginning of the array.
                 if let lastIndex = lastKnownIndex[stringArray[i]] {
+                    print("Last Index of \(stringArray[i]): \(lastIndex)")
                     substrings.append(String(stringArray[lastIndex..<i]))
-                } else {
-                    substrings.append(String(stringArray[0..<i]))
+                } else if stringArray.count >= i+1 { // i+1 is used to account for potentially empty strings.
+                    print("No index for \(stringArray[i]), substring: \(String(stringArray[0..<i]))")
+                    substrings.append(String(stringArray[0..<i+1]))
                 }
 
                 // We need to then update the lastKnownIndex with the current index.
@@ -65,6 +69,7 @@ class Solution {
             }
         }
 
+        print(substrings)
         return substrings
     }
 
@@ -77,6 +82,7 @@ class Solution {
             cleanedSubstrings.append(substring)
         }
 
+        print(cleanedSubstrings)
         return cleanedSubstrings
     }
 
@@ -151,6 +157,13 @@ class LongestSubstringWithoutRepeatingCharactersTestCases: XCTestCase {
     /// Case 7
     func testCase7() {
         let s = "aab"
+        let expected = 2
+        XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
+    }
+
+    /// Case 8
+    func testCase8() {
+        let s = "cdd"
         let expected = 2
         XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
     }
