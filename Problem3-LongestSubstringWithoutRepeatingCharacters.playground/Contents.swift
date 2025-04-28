@@ -25,9 +25,8 @@ import XCTest
 ///    s consists of English letters, digits, symbols and spaces.
 
 class Solution {
+    /// Solution 1: - Brute Force Approach
     func lengthOfLongestSubstring(_ s: String) -> Int {
-        print("=========")
-        print("s")
         // Get all the substrings, regardless of duplicate characters
         let substrings = getAllSubstring(s: s)
         // Remove any substrings with duplicate characters
@@ -39,37 +38,14 @@ class Solution {
     func getAllSubstring(s: String) -> [String] {
         var substrings: [String] = []
         let stringArray = Array(s) // Convert the string to an array
-        var lastKnownIndex: [Character: Int] = [:]
 
-        // Iterate through the length of the string array plus one to account for the end of the string
-        for i in 0...stringArray.count {
-            // If we're less than the total count, then we're still parsing the string and not at the end 
-            // yet. Otherwise, we're out of the string and need to get potential substrings that might
-            // end with the end of the string.
-            if i < stringArray.count {
-                // If we have a last index oc the current character recorded, then we can get a
-                // substring from the last known index to the current index. Otherwise we need to pull out
-                // a substring from the beginning of the array to the current index to account for
-                // potential substrings that might occur from the beginning of the array.
-                if let lastIndex = lastKnownIndex[stringArray[i]] {
-                    print("Last Index of \(stringArray[i]): \(lastIndex)")
-                    substrings.append(String(stringArray[lastIndex..<i]))
-                } else if stringArray.count >= i+1 { // i+1 is used to account for potentially empty strings.
-                    print("No index for \(stringArray[i]), substring: \(String(stringArray[0..<i]))")
-                    substrings.append(String(stringArray[0..<i+1]))
-                }
-
-                // We need to then update the lastKnownIndex with the current index.
-                lastKnownIndex[stringArray[i]] = i
-            } else {
-                // Record any substring that might end with the end of the string.
-                lastKnownIndex.forEach { (_, lastIndex) in
-                    substrings.append(String(stringArray[lastIndex..<stringArray.count]))
-                }
+        // Add in every possible substring
+        for i in 0..<stringArray.count {
+            for j in i..<stringArray.count {
+                substrings.append(String(stringArray[i...j]))
             }
         }
 
-        print(substrings)
         return substrings
     }
 
@@ -82,7 +58,6 @@ class Solution {
             cleanedSubstrings.append(substring)
         }
 
-        print(cleanedSubstrings)
         return cleanedSubstrings
     }
 
@@ -165,6 +140,13 @@ class LongestSubstringWithoutRepeatingCharactersTestCases: XCTestCase {
     func testCase8() {
         let s = "cdd"
         let expected = 2
+        XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
+    }
+
+    /// Case 9
+    func testCase9() {
+        let s = "ohomm"
+        let expected = 3
         XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
     }
 }
