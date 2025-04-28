@@ -25,50 +25,95 @@ import XCTest
 ///    s consists of English letters, digits, symbols and spaces.
 
 class Solution {
-    /// Solution 1: - Brute Force Approach
+//    /// Solution 1: - Brute Force Approach - This attempt works, but is very slow with a time complexity of O(n^3)
+//    func lengthOfLongestSubstring(_ s: String) -> Int {
+//        // Get all the substrings, regardless of duplicate characters
+//        let substrings = getAllSubstring(s: s)
+//        // Remove any substrings with duplicate characters
+//        let cleanedSubstrings = discardStringsWithDuplicateChars(substrings: substrings)
+//        // Find the longest substring
+//        return getLongestSubstring(substrings: cleanedSubstrings)
+//    }
+//
+//    func getAllSubstring(s: String) -> [String] {
+//        var substrings: [String] = []
+//        let stringArray = Array(s) // Convert the string to an array
+//
+//        // Add in every possible substring
+//        for i in 0..<stringArray.count {
+//            var knownChars: [Character] = []
+//            for j in i..<stringArray.count
+//            where !knownChars.contains(stringArray[j]) &&
+//                  !substrings.contains(String(stringArray[i...j])) {
+//                knownChars.append(stringArray[j])
+//                substrings.append(String(stringArray[i...j]))
+//            }
+//        }
+//
+//        return substrings
+//    }
+//
+//    func discardStringsWithDuplicateChars(substrings: [String]) -> [String] {
+//        var cleanedSubstrings: [String] = []
+//
+//        // Sets don't have duplicates, arrays can. If the count of a set is the same as the count of an
+//        // array, then there are no duplicates because no extra letters have been removed from the string.
+//        for substring in substrings where Set(substring).count == Array(substring).count {
+//            cleanedSubstrings.append(substring)
+//        }
+//
+//        return cleanedSubstrings
+//    }
+//
+//    func getLongestSubstring(substrings: [String]) -> Int {
+//        var longestCount: Int = 0
+//
+//        for substring in substrings where substring.count > longestCount {
+//            longestCount = substring.count
+//        }
+//
+//        return longestCount
+//    }
+
+    /// Solution 2: - Sliding Window
     func lengthOfLongestSubstring(_ s: String) -> Int {
-        // Get all the substrings, regardless of duplicate characters
-        let substrings = getAllSubstring(s: s)
-        // Remove any substrings with duplicate characters
-        let cleanedSubstrings = discardStringsWithDuplicateChars(substrings: substrings)
-        // Find the longest substring
-        return getLongestSubstring(substrings: cleanedSubstrings)
-    }
+        let stringArray = Array(s)
+        var left: Int = 0
+        var right: Int = 0
+        var longestLength: Int = 0
+        var characterProps: [Character: (count: Int, lastIndex: Int)] = [:]
 
-    func getAllSubstring(s: String) -> [String] {
-        var substrings: [String] = []
-        let stringArray = Array(s) // Convert the string to an array
+        while right < stringArray.count {
+            // Increase window size to the right
+            let currentChar = stringArray[right]
 
-        // Add in every possible substring
-        for i in 0..<stringArray.count {
-            for j in i..<stringArray.count {
-                substrings.append(String(stringArray[i...j]))
+            characterProps[currentChar] = (
+                (characterProps[currentChar]?.count ?? 0) + 1,
+                characterProps[currentChar]?.lastIndex ?? 0
+            )
+            
+            // Decease window size from the left if needed
+            if let lastIndex = characterProps[stringArray[right]]?.lastIndex,
+               let charCount = characterProps[currentChar]?.count,
+               charCount > 1 {
+                let oldLeft = left
+                left = lastIndex + 1 > left ? lastIndex + 1 : left + 1
+                for i in oldLeft..<left {
+                    let tempChar = stringArray[i]
+                    characterProps[tempChar] = (
+                        (characterProps[tempChar]?.count ?? 2) - 1,
+                        characterProps[tempChar]?.lastIndex ?? 0
+                    )
+                }
             }
+
+            // Set lastKnownIndex and longestLength and the right value
+            characterProps[currentChar] = ((characterProps[currentChar]?.count ?? 0), right)
+            longestLength = max(longestLength, right - left + 1)
+            right += 1
         }
 
-        return substrings
-    }
-
-    func discardStringsWithDuplicateChars(substrings: [String]) -> [String] {
-        var cleanedSubstrings: [String] = []
-
-        // Sets don't have duplicates, arrays can. If the count of a set is the same as the count of an
-        // array, then there are no duplicates because no extra letters have been removed from the string.
-        for substring in substrings where Set(substring).count == Array(substring).count {
-            cleanedSubstrings.append(substring)
-        }
-
-        return cleanedSubstrings
-    }
-
-    func getLongestSubstring(substrings: [String]) -> Int {
-        var longestCount: Int = 0
-
-        for substring in substrings where substring.count > longestCount {
-            longestCount = substring.count
-        }
-
-        return longestCount
+        return longestLength
     }
 }
 
@@ -145,8 +190,22 @@ class LongestSubstringWithoutRepeatingCharactersTestCases: XCTestCase {
 
     /// Case 9
     func testCase9() {
+        let s = "tmmzuxt"
+        let expected = 5
+        XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
+    }
+
+    /// Case 10
+    func testCase10() {
         let s = "ohomm"
         let expected = 3
+        XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
+    }
+
+    /// Case 11
+    func testCase11() {
+        let s = "abba"
+        let expected = 2
         XCTAssertEqual(solution.lengthOfLongestSubstring(s), expected)
     }
 }
