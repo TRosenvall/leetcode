@@ -26,25 +26,40 @@ import XCTest
 
 class Solution {
     func lengthOfLongestSubstring(_ s: String) -> Int {
+        // Get all the substrings, regardless of duplicate characters
         let substrings = getAllSubstring(s: s)
+        // Remove any substrings with duplicate characters
         let cleanedSubstrings = discardStringsWithDuplicateChars(substrings: substrings)
+        // Find the longest substring
         return getLongestSubstring(substrings: cleanedSubstrings)
     }
 
     func getAllSubstring(s: String) -> [String] {
         var substrings: [String] = []
-        let stringArray = Array(s)
+        let stringArray = Array(s) // Convert the string to an array
         var lastKnownIndex: [Character: Int] = [:]
 
+        // Iterate through the length of the string array plus one to account for the end of the string
         for i in 0...stringArray.count {
+            // If we're less than the total count, then we're still parsing the string and not at the end 
+            // yet. Otherwise, we're out of the string and need to get potential substrings that might
+            // end with the end of the string.
             if i < stringArray.count {
+                // If we have a last index oc the current character recorded, then we can get a
+                // substring from the last known index to the current index. Otherwise we need to pull out
+                // a substring from the beginning of the array to the current index to account for
+                // potential substrings that might occur from the beginning of the array.
                 if let lastIndex = lastKnownIndex[stringArray[i]] {
                     substrings.append(String(stringArray[lastIndex..<i]))
+                } else {
+                    substrings.append(String(stringArray[0..<i]))
                 }
-                
+
+                // We need to then update the lastKnownIndex with the current index.
                 lastKnownIndex[stringArray[i]] = i
             } else {
-                lastKnownIndex.forEach { (char, lastIndex) in
+                // Record any substring that might end with the end of the string.
+                lastKnownIndex.forEach { (_, lastIndex) in
                     substrings.append(String(stringArray[lastIndex..<stringArray.count]))
                 }
             }
@@ -56,7 +71,9 @@ class Solution {
     func discardStringsWithDuplicateChars(substrings: [String]) -> [String] {
         var cleanedSubstrings: [String] = []
 
-        for substring in substrings where Set(Array(substring)).count == Array(substring).count {
+        // Sets don't have duplicates, arrays can. If the count of a set is the same as the count of an
+        // array, then there are no duplicates because no extra letters have been removed from the string.
+        for substring in substrings where Set(substring).count == Array(substring).count {
             cleanedSubstrings.append(substring)
         }
 
