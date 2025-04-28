@@ -26,8 +26,6 @@ import XCTest
 
 class Solution {
     func lengthOfLongestSubstring(_ s: String) -> Int {
-        print("=================")
-        print(s)
         let substrings = getAllSubstring(s: s)
         let cleanedSubstrings = discardStringsWithDuplicateChars(substrings: substrings)
         return getLongestSubstring(substrings: cleanedSubstrings)
