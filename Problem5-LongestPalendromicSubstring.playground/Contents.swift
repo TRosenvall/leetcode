@@ -45,7 +45,7 @@ class Solution {
     /// Solution 1: - Brute force
     func convert(_ s: String, _ numRows: Int) -> String {
         // If the string has 0 or 1 characters, return itself.
-        if s.count <= 1 {
+        if s.count <= numRows || numRows <= 1 {
             return s
         }
 
