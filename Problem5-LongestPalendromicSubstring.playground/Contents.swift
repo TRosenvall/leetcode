@@ -1,93 +1,153 @@
 import Foundation
 import XCTest
 
-/// The string "PAYPALISHIRING" is written in a zigzag pattern on a given number of rows like this: (you may want to
-/// display this pattern in a fixed font for better legibility)
-///
-/// P   A   H   N
-/// A P L S I I G
-/// Y   I   R
-///
-/// And then read line by line: "PAHNAPLSIIGYIR"
-///
-/// Write the code that will take a string and make this conversion given a number of rows:
-///
-/// string convert(string s, int numRows);
+/// Given a string s, return the longest in s.
 ///
 /// Example 1:
 ///
-/// Input: s = "PAYPALISHIRING", numRows = 3
-/// Output: "PAHNAPLSIIGYIR"
+/// Input: s = "babad"
+/// Output: "bab"
+/// Explanation: "aba" is also a valid answer.
 ///
 /// Example 2:
 ///
-/// Input: s = "PAYPALISHIRING", numRows = 4
-/// Output: "PINALSIGYAHRPI"
-/// Explanation:
-/// P           I            N
-///  A      L  S       I    G
-///   Y  A     H  R
-///    P          I
-///
-///
-/// Example 3:
-///
-/// Input: s = "A", numRows = 1
-/// Output: "A"
+/// Input: s = "cbbd"
+/// Output: "bb"
 ///
 /// Constraints:
-///
 ///    1 <= s.length <= 1000
-///    s consists of English letters (lower-case and upper-case), ',' and '.'.
-///    1 <= numRows <= 1000
+///    s consist of only digits and English letters.
 
 class Solution {
-    /// Solution 1: - Brute force
-    func convert(_ s: String, _ numRows: Int) -> String {
-        // If the string has 0 or 1 characters, return itself.
-        if s.count <= numRows || numRows <= 1 {
-            return s
+//    /// Solution 1: - Brute force by center expansion
+//    func longestPalindrome(_ s: String) -> String {
+//        // If the string is empty or has only one character, simply return the
+//        // string.
+//        if s.count == 0 || s.count == 1 {
+//            return s
+//        }
+//
+//        let stringArray = Array(s)
+//        var longestPalindrome: String = ""
+//
+//        // Handle Odd Palindromes
+//        for i in 0..<stringArray.count {
+//            var left = i
+//            var right = i
+//
+//            // This isn't particularly elegant, but this is a brute force solution
+//            if stringArray[left] == stringArray[right] {
+//                while left >= 0,
+//                      right < stringArray.count {
+//                    left -= 1
+//                    right += 1
+//
+//                    // Decrement if we're no longer a palindrom
+//                    if left < 0 ||
+//                       right >= stringArray.count ||
+//                       stringArray[left] != stringArray[right] {
+//                        left += 1
+//                        right -= 1
+//                        break
+//                    }
+//                }
+//            }
+//
+//            if right-left > longestPalindrome.count,
+//               stringArray[left] == stringArray[right] {
+//                longestPalindrome = String(stringArray[left...right])
+//            }
+//        }
+//
+//        // Handle Even Palindromes
+//        for i in 0..<stringArray.count - 1 {
+//            var left = i
+//            var right = i + 1
+//
+//            // This isn't particularly elegant, but this is a brute force solution
+//            if stringArray[left] == stringArray[right] {
+//                while left >= 0,
+//                      right < stringArray.count {
+//                    left -= 1
+//                    right += 1
+//
+//                    // Decrement if we're no longer a palindrom
+//                    if left < 0 ||
+//                       right >= stringArray.count ||
+//                       stringArray[left] != stringArray[right] {
+//                        left += 1
+//                        right -= 1
+//                        break
+//                    }
+//                }
+//            }
+//
+//            if right-left > longestPalindrome.count - 1,
+//               stringArray[left] == stringArray[right] {
+//                longestPalindrome = String(stringArray[left...right])
+//            }
+//        }
+//
+//        // If no palindrome was found, then the first character should be used
+//        if longestPalindrome.count == 0 {
+//            return String(stringArray[0])
+//        }
+//
+//        return longestPalindrome
+//    }
+
+    /// Solution 2: - Manacher’s Algorithm - Found this after I built my solution.
+    func longestPalindrome(_ s: String) -> String {
+        // Preprocess the string to make them all odd palindromes
+        let preprocessedString = "^#" + s.map { String($0) }.joined(separator: "#") + "#$"
+        let stringArray = Array(preprocessedString)
+        let n = stringArray.count
+        var palindromeRadii = Array(repeating: 0, count: n)
+        var center = 0
+        var right = 0
+
+        // Expand around the palindrome centers
+        for i in 1..<n-1 {
+            let mirror = 2 * center - i // Mirror the index around i
+
+            if i < right {
+                palindromeRadii[i] = min(right - i, palindromeRadii[mirror])
+            }
+
+            // Try to expand the palindrome centered at i
+            while stringArray[i + palindromeRadii[i] + 1] ==
+                  stringArray[i - palindromeRadii[i] - 1] {
+                palindromeRadii[i] += 1
+            }
+
+            // If the palindrome expands past the right boundary, update the center
+            // and the right values
+            if i + palindromeRadii[i] > right {
+                center = i
+                right = i + palindromeRadii[i]
+            }
         }
 
-        // Create a type for handling 2d points using integer positions
-        typealias Point = (x: Int, y: Int)
-        var twoDimMappingArray: [Point] = []
-
-        // Iterate through the string
-        for i in 0..<s.count {
-            // This is the period over which we'll be zigzagging our string
-            let period = 2 * (numRows - 1)
-            let mod = i % period
-
-            // Here we can use i as the x position, moving right as we zigzag, the y
-            // value will be moving up and down as we go along.
-            twoDimMappingArray.append(
-                (
-                    x: i,
-                    y: mod < numRows ?
-                       mod :
-                       period - mod
-                )
-            )
+        // Pull the longest palindrom out of p
+        var maxLen = 0
+        var centerIndex = 0
+        for i in 1..<n-1 where palindromeRadii[i] > maxLen {
+            maxLen = palindromeRadii[i]
+            centerIndex = i
         }
 
-        var returnString: [Character] = []
-        // Here we sort by the y values to collect all the terms on the top row by
-        // themselves, then each row moving down in order.
-        for point in twoDimMappingArray.enumerated().sorted(by: { (point1, point2) in
-            return point1.element.y < point2.element.y
-        }){
-            // We then gather the characters of the string by the x position based on
-            // the newly sorted array
-            returnString.append(Array(s)[point.element.x])
-        }
-
-        return String(returnString)
+        // Extract the longest palindrome from the original string
+        let startIndex = s.index(
+            s.startIndex,
+            offsetBy: (centerIndex - maxLen)/2
+        )
+        let endIndex = s.index(startIndex, offsetBy: maxLen)
+        return String(s[startIndex..<endIndex])
     }
 }
 
 /// Test Cases
-class ZigZagConversionTestCases: XCTestCase {
+class LongestPalendromicSubstringTestCases: XCTestCase {
 
     // MARK: - Properties
 
@@ -103,26 +163,44 @@ class ZigZagConversionTestCases: XCTestCase {
 
     /// Case 1:
     func testCase1() {
-        let s = "PAYPALISHIRING"
-        let numRows = 3
-        let expected = "PAHNAPLSIIGYIR"
-        XCTAssertEqual(solution.convert(s, numRows), expected)
+        let s = "babad"
+        let expected = "bab" // "aba" could work also, but I'll stick with this for now.
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
     }
 
     /// Case 2:
     func testCase2() {
-        let s = "PAYPALISHIRING"
-        let numRows = 4
-        let expected = "PINALSIGYAHRPI"
-        XCTAssertEqual(solution.convert(s, numRows), expected)
+        let s = "cbbd"
+        let expected = "bb"
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
     }
 
     /// Case 3:
     func testCase3() {
-        let s = "A"
-        let numRows = 1
-        let expected = "A"
-        XCTAssertEqual(solution.convert(s, numRows), expected)
+        let s = "a"
+        let expected = "a"
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
+    }
+
+    /// Case 4:
+    func testCase4() {
+        let s = "ac"
+        let expected = "a"
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
+    }
+
+    /// Case 5:
+    func testCase5() {
+        let s = "abb"
+        let expected = "bb"
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
+    }
+
+    /// Case 6:
+    func testCase6() {
+        let s = "aaaa"
+        let expected = "aaaa"
+        XCTAssertEqual(solution.longestPalindrome(s), expected)
     }
 }
 
@@ -146,5 +224,5 @@ public struct TestRunner {
     }
 }
 
-TestRunner().runTests(testClass: ZigZagConversionTestCases.self)
+TestRunner().runTests(testClass: LongestPalendromicSubstringTestCases.self)
 
