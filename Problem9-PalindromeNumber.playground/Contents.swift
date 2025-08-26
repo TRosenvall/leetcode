@@ -43,10 +43,47 @@ extension Int {
 
         return result
     }
+
+    var digits: [Int] {
+        var n = self
+        var result: [Int] = []
+        if n == 0 { return [0] }
+        
+        while n > 0 {
+            result.append(n % 10)  // last digit
+            n /= 10                // remove last digit
+        }
+        
+        return result.reversed()   // reverse so it's most-significant first
+    }
+
 }
 class Solution {
     func isPalindrome(_ x: Int) -> Bool {
-        
+        let max = 2.pow(31)-1
+        let min = 0
+
+        if x < min { return false }
+        let intArray = x.digits
+
+        print("=-=-=-=")
+        print(intArray.count)
+        print(x)
+        print(intArray)
+        if intArray.count == 2 && intArray[0] != intArray[1] {
+            return false
+        }
+
+        var i = 0
+        while i < intArray.count/2 && intArray[i] == intArray.reversed()[i] {
+            i += 1
+        }
+
+
+        if i >= intArray.count/2 {
+            return true
+        }
+        return false
     }
 }
 
