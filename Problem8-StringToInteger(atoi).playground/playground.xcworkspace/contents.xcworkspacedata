@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:">
+      location = "self:/Users/timothyrosenvall/leetcode/leetcode/Problem7-ReverseInteger.playground">
    </FileRef>
 </Workspace>
