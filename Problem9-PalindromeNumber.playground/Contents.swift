@@ -29,8 +29,16 @@ import XCTest
 
 
 extension Int {
-    /// DOES NOT WORK FOR NEGATIVE EXPONENTS
-    func pow(_ exp: Int) -> Int {
+
+    func pow(_ exp: Int) -> Double {
+        if exp < 0 {
+            return negPow(exp)
+        } else {
+            return Double(posPow(exp))
+        }
+    }
+
+    private func posPow(_ exp: Int) -> Int {
         var base = self
         var exp = exp
         var result = 1
@@ -42,6 +50,13 @@ extension Int {
         }
 
         return result
+    }
+
+    private func negPow(_ exp: Int) -> Double {
+        var result = posPow(exp)
+
+        let inverse = 1/Double(result)
+        return inverse
     }
 
     var digits: [Int] {
@@ -66,10 +81,6 @@ class Solution {
         if x < min { return false }
         let intArray = x.digits
 
-        print("=-=-=-=")
-        print(intArray.count)
-        print(x)
-        print(intArray)
         if intArray.count == 2 && intArray[0] != intArray[1] {
             return false
         }
