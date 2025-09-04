@@ -63,63 +63,65 @@ class Solution {
         let hundreds = num%1000 - tens - ones
         let thousands = num - hundreds - tens - ones
 
-        print(num)
-        print(thousands)
-        print(hundreds)
-        print(tens)
-        print(ones)
-
-        for _ in 0..<(thousands/1000) {
-            result = result + "M"
-        }
-
-        if hundreds == 900 {
-            result = result + "CM"
-        } else if hundreds >= 500 {
-            result = result + "D"
-            for _ in 0..<(hundreds-500)/100 {
-                result = result + "C"
-            }
-        } else if hundreds == 400 {
-            result = result + "CD"
-        } else {
-            for _ in 0..<(hundreds/100) {
-                result = result + "C"
-            }
-        }
-
-        if tens == 90 {
-            result = result + "XC"
-        } else if tens >= 50 {
-            result = result + "L"
-            for _ in 0..<(tens-50)/10 {
-                result = result + "X"
-            }
-        } else if tens == 40 {
-            result = result + "XL"
-        } else {
-            for _ in 0..<(tens/10) {
-                result = result + "X"
-            }
-        }
-
-        if ones == 9 {
-            result = result + "IX"
-        } else if ones >= 5 {
-            result = result + "V"
-            for _ in 0..<(ones-5) {
-                result = result + "I"
-            }
-        } else if ones == 4 {
-            result = result + "IV"
-        } else {
-            for _ in 0..<ones {
-                result = result + "I"
-            }
-        }
+        result = result +
+            toRoman(numMap: numMap, forPlace: .thousands, forNum: thousands) +
+            toRoman(numMap: numMap, forPlace: .hundreds, forNum: hundreds) +
+            toRoman(numMap: numMap, forPlace: .tens, forNum: tens) +
+            toRoman(numMap: numMap, forPlace: .ones, forNum: ones)
 
         return result
     }
+}
+
+enum Place: Int {
+    case ones = 1
+    case tens = 10
+    case hundreds = 100
+    case thousands = 1000
+}
+
+var numMap: [Int: String] = {
+    var dict: [Int: String] = [:]
+    dict[1] = "I"
+    dict[4] = "IV"
+    dict[5] = "V"
+    dict[9] = "IX"
+
+    dict[10] = "X"
+    dict[40] = "XL"
+    dict[50] = "L"
+    dict[90] = "XC"
+
+    dict[100] = "C"
+    dict[400] = "CD"
+    dict[500] = "D"
+    dict[900] = "CM"
+
+    dict[1000] = "M"
+
+    return dict
+}()
+
+func toRoman(numMap: [Int:String], forPlace place: Place, forNum num: Int) -> String {
+    let place = place.rawValue
+    var result = ""
+
+    if num == 9 * place {
+        result = result + numMap[9 * place]!
+    } else if num >= 5 * place {
+        result = result + numMap[5 * place]!
+        for _ in 0..<(num/place-5) {
+            result = result + numMap[place]!
+        }
+    } else if num == 4 * place {
+        result = result + numMap[4 * place]!
+    } else {
+        for _ in 0..<(num/place) {
+            result = result + numMap[place]!
+        }
+    }
+
+    return result
 }
 
 /// Test Cases
